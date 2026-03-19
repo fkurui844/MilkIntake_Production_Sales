@@ -40,7 +40,7 @@
 
         .header {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
             color: white;
             animation: slideDown 0.6s ease-out;
         }
@@ -60,16 +60,24 @@
             color: #cbd5e1;
         }
 
-        .settings-bar {
+        .controls-bar {
             background: white;
             padding: 20px;
             border-radius: 12px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             display: flex;
             gap: 20px;
             flex-wrap: wrap;
             align-items: center;
+            justify-content: space-between;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
         }
 
         .btn {
@@ -81,6 +89,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             display: inline-block;
+            white-space: nowrap;
         }
 
         .btn-primary {
@@ -101,6 +110,16 @@
 
         .btn-secondary:hover {
             background: #d97706;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
             transform: translateY(-2px);
         }
 
@@ -126,12 +145,6 @@
         .status.loading {
             background: #dbeafe;
             color: #1e40af;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
         }
 
         .dashboard-tabs {
@@ -177,6 +190,65 @@
             animation: fadeIn 0.3s ease-out;
         }
 
+        .data-form {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+        }
+
+        .form-title {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-field label {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .form-field input,
+        .form-field textarea {
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1em;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .form-field input:focus,
+        .form-field textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(45, 80, 22, 0.1);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
         .metrics-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -206,7 +278,6 @@
             font-size: 1.8em;
             font-weight: 700;
             color: var(--text-dark);
-            word-break: break-word;
         }
 
         .chart-container {
@@ -263,72 +334,33 @@
             background: var(--bg-light);
         }
 
-        .empty-state {
-            background: white;
-            padding: 60px 20px;
-            border-radius: 12px;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        }
-
-        .empty-state .icon {
-            font-size: 3em;
-            margin-bottom: 16px;
-        }
-
-        .empty-state p {
-            font-size: 1.1em;
-            color: var(--text-light);
+        .success-message,
+        .error-message {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            animation: slideDown 0.3s ease-out;
         }
 
         .success-message {
             background: #d1fae5;
             border: 1px solid #6ee7b7;
             color: #065f46;
-            padding: 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: none;
         }
 
         .success-message.show {
             display: block;
-            animation: slideDown 0.3s ease-out;
         }
 
         .error-message {
             background: #fee2e2;
             border: 1px solid #fecaca;
             color: #991b1b;
-            padding: 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: none;
         }
 
         .error-message.show {
             display: block;
-            animation: slideDown 0.3s ease-out;
-        }
-
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
         }
 
         .kpi-grid {
@@ -360,6 +392,72 @@
             color: var(--text-dark);
         }
 
+        .empty-state {
+            background: white;
+            padding: 60px 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .empty-state .icon {
+            font-size: 3em;
+            margin-bottom: 16px;
+        }
+
+        .empty-state p {
+            font-size: 1.1em;
+            color: var(--text-light);
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .upload-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 30px;
+            border: 2px dashed var(--border);
+        }
+
+        .upload-section h3 {
+            font-size: 1.3em;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-dark);
+        }
+
+        .upload-instructions {
+            background: var(--bg-light);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            color: var(--text-dark);
+        }
+
+        .upload-instructions strong {
+            color: var(--primary);
+        }
+
         @media (max-width: 768px) {
             .charts-grid {
                 grid-template-columns: 1fr;
@@ -373,6 +471,15 @@
                 grid-template-columns: 1fr 1fr;
             }
 
+            .controls-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .control-group {
+                justify-content: center;
+            }
+
             .dashboard-tabs {
                 flex-wrap: wrap;
             }
@@ -380,6 +487,10 @@
             .tab-btn {
                 padding: 12px 16px;
                 font-size: 0.9em;
+            }
+
+            .form-group {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -394,25 +505,28 @@
         <div class="error-message" id="errorMessage"></div>
         <div class="success-message" id="successMessage"></div>
 
-        <div class="settings-bar">
-            <div style="flex: 1; min-width: 300px;">
-                <div style="font-size: 0.85em; color: var(--text-light); margin-bottom: 5px; font-weight: 600;">API Status: Connected ✅</div>
+        <div class="controls-bar">
+            <div>
+                <div style="font-size: 0.85em; color: var(--text-light); font-weight: 600; margin-bottom: 5px;">API Status: Connected ✅</div>
                 <div style="color: var(--text-dark); font-weight: 500;">Dashboard Ready</div>
             </div>
-            <button class="btn btn-secondary" onclick="loadData()" style="white-space: nowrap;">🔄 Load Data</button>
-            <button class="btn btn-primary" onclick="resetDashboard()" style="white-space: nowrap;">↻ Reset</button>
-            <div class="status success" id="connectionStatus">Connected</div>
+            <div class="control-group">
+                <button class="btn btn-secondary" onclick="loadData()">🔄 Refresh Data</button>
+                <button class="btn btn-primary" onclick="resetDashboard()">↻ Reset</button>
+                <div class="status success" id="connectionStatus">Connected</div>
+            </div>
         </div>
 
         <div class="dashboard-tabs">
-            <button class="tab-btn active" onclick="switchTab('overview')">📊 Overview</button>
+            <button class="tab-btn active" onclick="switchTab('dashboard')">📊 Dashboard</button>
+            <button class="tab-btn" onclick="switchTab('upload')">📝 Add Data</button>
             <button class="tab-btn" onclick="switchTab('intake')">🚜 Milk Intake</button>
             <button class="tab-btn" onclick="switchTab('production')">🏭 Production</button>
             <button class="tab-btn" onclick="switchTab('analysis')">📈 Analysis</button>
         </div>
 
-        <!-- OVERVIEW TAB -->
-        <div id="overview" class="tab-content active">
+        <!-- DASHBOARD TAB -->
+        <div id="dashboard" class="tab-content active">
             <div class="metrics-grid" id="metricsGrid"></div>
 
             <div class="charts-grid">
@@ -439,6 +553,77 @@
                     </thead>
                     <tbody id="dailyTableBody"></tbody>
                 </table>
+            </div>
+        </div>
+
+        <!-- ADD DATA TAB -->
+        <div id="upload" class="tab-content">
+            <div class="upload-section">
+                <h3>📝 Add New Data</h3>
+                <p style="margin-bottom: 20px; color: var(--text-light);">Enter data for milk intake, production, and sales. All fields are optional - fill in what you have.</p>
+                
+                <div class="data-form">
+                    <div class="form-title">🥛 Milk Intake Data</div>
+                    <div class="form-group">
+                        <div class="form-field">
+                            <label for="intakeDate">Date (YYYY-MM-DD)*</label>
+                            <input type="date" id="intakeDate" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="intakeVolume">Milk Intake (Ltrs)</label>
+                            <input type="number" id="intakeVolume" placeholder="e.g., 100000" step="0.01">
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-success" onclick="addIntakeData()">➕ Add Milk Intake</button>
+                    </div>
+                </div>
+
+                <div class="data-form">
+                    <div class="form-title">🏭 Production Data</div>
+                    <div class="form-group">
+                        <div class="form-field">
+                            <label for="prodDate">Date (YYYY-MM-DD)*</label>
+                            <input type="date" id="prodDate" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="totalProduction">Total Production</label>
+                            <input type="number" id="totalProduction" placeholder="e.g., 85000" step="0.01">
+                        </div>
+                        <div class="form-field">
+                            <label for="freshMilk">Fresh Milk</label>
+                            <input type="number" id="freshMilk" placeholder="e.g., 31330" step="0.01">
+                        </div>
+                        <div class="form-field">
+                            <label for="yoghurt">Yoghurt</label>
+                            <input type="number" id="yoghurt" placeholder="e.g., 2781" step="0.01">
+                        </div>
+                        <div class="form-field">
+                            <label for="mala">Mala</label>
+                            <input type="number" id="mala" placeholder="e.g., 12807" step="0.01">
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-success" onclick="addProductionData()">➕ Add Production</button>
+                    </div>
+                </div>
+
+                <div class="data-form">
+                    <div class="form-title">💰 Sales Data</div>
+                    <div class="form-group">
+                        <div class="form-field">
+                            <label for="salesDate">Date (YYYY-MM-DD)*</label>
+                            <input type="date" id="salesDate" required>
+                        </div>
+                        <div class="form-field">
+                            <label for="salesVolume">Sales (Ltrs/Kgs)</label>
+                            <input type="number" id="salesVolume" placeholder="e.g., 69020.15" step="0.01">
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-success" onclick="addSalesData()">➕ Add Sales</button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -559,15 +744,15 @@
         </div>
 
         <div class="empty-state" id="emptyState">
-            <div class="icon">📂</div>
-            <p>Loading data...</p>
-            <p style="font-size: 0.9em;">Click "🔄 Load Data" to refresh</p>
+            <div class="icon">📊</div>
+            <p>Start by clicking "📝 Add Data" tab to enter your first record</p>
+            <p style="font-size: 0.9em; margin-top: 10px;">Or click "🔄 Refresh Data" to load existing data from Google Sheets</p>
         </div>
     </div>
 
     <script>
         // Pre-configured API URL
-        const API_URL = 'https://script.google.com/macros/s/AKfycbwQwwz_PIv2lWGZW1yLZpCiYlZFMquYfF0EbeeebrNte60QDymeaS0ZLQhc2voiZpvN/exec';
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwFaOpNDuXWBAk6AHH2xA3e560jo1Y5QifBgfpRHOlkawTGbEER0BivTGP1UdYspVHh/exec';
 
         // Global variables
         let intakeData = [];
@@ -583,7 +768,6 @@
 
         async function loadData() {
             document.getElementById('connectionStatus').textContent = 'Loading...';
-            document.getElementById('connectionStatus').className = 'status loading';
             
             try {
                 const response = await fetch(`${API_URL}?action=getAllData`);
@@ -602,24 +786,150 @@
                         document.getElementById('connectionStatus').className = 'status success';
                         showSuccess('✅ Data loaded successfully!');
                     } else {
-                        showError('No data found in sheets');
-                        document.getElementById('connectionStatus').className = 'status error';
+                        document.getElementById('emptyState').style.display = 'block';
+                        document.getElementById('connectionStatus').textContent = 'No Data';
                     }
                 } else {
                     showError('Error: ' + result.error);
-                    document.getElementById('connectionStatus').className = 'status error';
                 }
             } catch (error) {
                 showError('Connection failed: ' + error.message);
-                document.getElementById('connectionStatus').className = 'status error';
                 console.error('Fetch error:', error);
+            }
+        }
+
+        async function addIntakeData() {
+            const date = document.getElementById('intakeDate').value;
+            const volume = document.getElementById('intakeVolume').value;
+
+            if (!date) {
+                showError('❌ Please select a date');
+                return;
+            }
+
+            if (!volume) {
+                showError('❌ Please enter milk intake volume');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}?action=addIntake`, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        'Date': new Date(date),
+                        'Milk Intake': parseFloat(volume)
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showSuccess('✅ Milk intake data added successfully!');
+                    document.getElementById('intakeDate').value = '';
+                    document.getElementById('intakeVolume').value = '';
+                    loadData();
+                } else {
+                    showError('Error: ' + result.error);
+                }
+            } catch (error) {
+                showError('Failed to add data: ' + error.message);
+            }
+        }
+
+        async function addProductionData() {
+            const date = document.getElementById('prodDate').value;
+            const totalProd = document.getElementById('totalProduction').value;
+
+            if (!date) {
+                showError('❌ Please select a date');
+                return;
+            }
+
+            if (!totalProd) {
+                showError('❌ Please enter total production');
+                return;
+            }
+
+            try {
+                const payload = {
+                    'Date': new Date(date),
+                    'Total Production': parseFloat(totalProd)
+                };
+
+                if (document.getElementById('freshMilk').value) {
+                    payload['Fresh milk'] = parseFloat(document.getElementById('freshMilk').value);
+                }
+                if (document.getElementById('yoghurt').value) {
+                    payload['Yoghurt'] = parseFloat(document.getElementById('yoghurt').value);
+                }
+                if (document.getElementById('mala').value) {
+                    payload['Mala'] = parseFloat(document.getElementById('mala').value);
+                }
+
+                const response = await fetch(`${API_URL}?action=addProduction`, {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showSuccess('✅ Production data added successfully!');
+                    document.getElementById('prodDate').value = '';
+                    document.getElementById('totalProduction').value = '';
+                    document.getElementById('freshMilk').value = '';
+                    document.getElementById('yoghurt').value = '';
+                    document.getElementById('mala').value = '';
+                    loadData();
+                } else {
+                    showError('Error: ' + result.error);
+                }
+            } catch (error) {
+                showError('Failed to add data: ' + error.message);
+            }
+        }
+
+        async function addSalesData() {
+            const date = document.getElementById('salesDate').value;
+            const volume = document.getElementById('salesVolume').value;
+
+            if (!date) {
+                showError('❌ Please select a date');
+                return;
+            }
+
+            if (!volume) {
+                showError('❌ Please enter sales volume');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}?action=addSales`, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        'Date': new Date(date),
+                        'Sales (Ltrs/Kgs)': parseFloat(volume)
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showSuccess('✅ Sales data added successfully!');
+                    document.getElementById('salesDate').value = '';
+                    document.getElementById('salesVolume').value = '';
+                    loadData();
+                } else {
+                    showError('Error: ' + result.error);
+                }
+            } catch (error) {
+                showError('Failed to add data: ' + error.message);
             }
         }
 
         function alignDataByDates() {
             const map = {};
 
-            // Align intake data
             intakeData.forEach(item => {
                 const date = formatDate(item.Date || item.date);
                 if (date) {
@@ -629,7 +939,6 @@
                 }
             });
 
-            // Align production data
             productionData.forEach(item => {
                 const date = formatDate(item.Date || item.date);
                 if (date) {
@@ -639,7 +948,6 @@
                 }
             });
 
-            // Align sales data
             salesData.forEach(item => {
                 const date = formatDate(item.Date || item.date);
                 if (date) {
@@ -976,8 +1284,8 @@
 
             let html = '';
             alignedData.forEach(row => {
-                const intakeToProd = ((row.production / row.intake) * 100).toFixed(1);
-                const prodToSales = ((row.sales / row.production) * 100).toFixed(1);
+                const intakeToProd = row.intake > 0 ? ((row.production / row.intake) * 100).toFixed(1) : 0;
+                const prodToSales = row.production > 0 ? ((row.sales / row.production) * 100).toFixed(1) : 0;
                 html += `
                     <tr>
                         <td>${row.date}</td>
@@ -1010,7 +1318,7 @@
             salesData = [];
             alignedData = [];
             document.getElementById('emptyState').style.display = 'block';
-            showSuccess('Dashboard reset. Click "Load Data" to refresh.');
+            showSuccess('Dashboard reset.');
         }
 
         function showError(message) {
