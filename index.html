@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🥛 Milk Intake, Production & Sales Dashboard</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -120,6 +121,7 @@
         .status-badge.loading {
             background: #dbeafe;
             color: #1e40af;
+            animation: pulse 1s infinite;
         }
 
         .status-badge.success {
@@ -184,8 +186,52 @@
         .form-title {
             font-size: 1.5em;
             font-weight: 700;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             color: var(--text-dark);
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 10px;
+        }
+
+        .upload-area {
+            border: 3px dashed var(--border);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 20px;
+            background: var(--bg-light);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, var(--bg-light) 0%, rgba(45, 80, 22, 0.05) 100%);
+        }
+
+        .upload-area.dragover {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, var(--bg-light) 0%, rgba(45, 80, 22, 0.1) 100%);
+        }
+
+        .upload-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+
+        .upload-text {
+            font-size: 1.1em;
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+
+        .upload-subtext {
+            color: var(--text-light);
+            margin-top: 5px;
+            font-size: 0.95em;
+        }
+
+        .file-input {
+            display: none;
         }
 
         .form-group {
@@ -239,6 +285,12 @@
             color: #991b1b;
         }
 
+        .message.info {
+            background: #dbeafe;
+            border: 1px solid #93c5fd;
+            color: #1e40af;
+        }
+
         .message.show {
             display: block;
         }
@@ -287,13 +339,6 @@
             color: var(--text-dark);
         }
 
-        .charts-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-
         .data-table {
             width: 100%;
             border-collapse: collapse;
@@ -338,21 +383,65 @@
             color: var(--text-light);
         }
 
-        @media (max-width: 768px) {
-            .charts-row {
-                grid-template-columns: 1fr;
-            }
+        .section-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
 
+        .preview-box {
+            background: var(--bg-light);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .preview-table {
+            width: 100%;
+            font-size: 0.85em;
+            border-collapse: collapse;
+        }
+
+        .preview-table th,
+        .preview-table td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .preview-table th {
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        @media (max-width: 768px) {
             .header h1 {
                 font-size: 1.8em;
             }
 
-            .metrics-grid {
-                grid-template-columns: 1fr 1fr;
+            .section-grid {
+                grid-template-columns: 1fr;
             }
 
             .form-input {
                 max-width: 100%;
+            }
+
+            .upload-area {
+                padding: 30px 20px;
             }
         }
     </style>
@@ -361,35 +450,99 @@
     <div class="container">
         <div class="header">
             <h1>🥛 Milk Intake, Production & Sales</h1>
-            <p>Dashboard powered by Google Sheets</p>
+            <p>Dashboard with Excel bulk import</p>
         </div>
 
         <div class="message success" id="successMessage"></div>
         <div class="message error" id="errorMessage"></div>
+        <div class="message info" id="infoMessage"></div>
 
         <div class="controls-bar">
             <div>
                 <div style="font-size: 0.85em; color: var(--text-light); font-weight: 600;">Status</div>
-                <div class="status-badge loading" id="statusBadge">🔄 Loading...</div>
+                <div class="status-badge loading" id="statusBadge">🔄 Connecting...</div>
             </div>
             <div style="display: flex; gap: 10px;">
                 <button class="btn btn-secondary" onclick="loadData()">🔄 Refresh</button>
-                <button class="btn btn-primary" onclick="configureAPI()">⚙️ Configure API</button>
             </div>
         </div>
 
         <div class="dashboard-tabs">
-            <button class="tab-btn active" onclick="switchTab('add-data')">📝 Add Data</button>
+            <button class="tab-btn active" onclick="switchTab('upload')">📤 Upload Data</button>
+            <button class="tab-btn" onclick="switchTab('manual')">📝 Add Manual</button>
             <button class="tab-btn" onclick="switchTab('intake')">🚜 Milk Intake</button>
             <button class="tab-btn" onclick="switchTab('production')">🏭 Production</button>
             <button class="tab-btn" onclick="switchTab('sales')">💰 Sales</button>
             <button class="tab-btn" onclick="switchTab('overview')">📊 Overview</button>
         </div>
 
-        <!-- ADD DATA TAB -->
-        <div id="add-data" class="tab-content active">
+        <!-- UPLOAD TAB -->
+        <div id="upload" class="tab-content active">
             <div class="form-section">
-                <div class="form-title">➕ Add New Records</div>
+                <div class="form-title">📤 Bulk Upload Data from Excel</div>
+                <p style="margin-bottom: 20px; color: var(--text-light);">
+                    Upload Excel files with your data. The file should have sheets named "Milk Intake", "Production", and/or "Sales" with Date and Value columns.
+                </p>
+
+                <div class="section-grid">
+                    <!-- MILK INTAKE UPLOAD -->
+                    <div>
+                        <h3 style="margin-bottom: 15px; color: var(--text-dark);">🚜 Milk Intake Upload</h3>
+                        <div class="upload-area" onclick="document.getElementById('intakeFile').click()" ondragover="handleDragOver(event)" ondrop="handleIntakeDrop(event)">
+                            <div class="upload-icon">📊</div>
+                            <div class="upload-text">Click or drag Excel file</div>
+                            <div class="upload-subtext">xlsx, xls format</div>
+                        </div>
+                        <input type="file" id="intakeFile" class="file-input" accept=".xlsx,.xls" onchange="handleIntakeFile(event)">
+                        <div class="preview-box hidden" id="intakePreview"></div>
+                        <button class="btn btn-success" onclick="uploadIntakeData()" style="margin-top: 10px;">📤 Upload</button>
+                    </div>
+
+                    <!-- PRODUCTION UPLOAD -->
+                    <div>
+                        <h3 style="margin-bottom: 15px; color: var(--text-dark);">🏭 Production Upload</h3>
+                        <div class="upload-area" onclick="document.getElementById('prodFile').click()" ondragover="handleDragOver(event)" ondrop="handleProdDrop(event)">
+                            <div class="upload-icon">📊</div>
+                            <div class="upload-text">Click or drag Excel file</div>
+                            <div class="upload-subtext">xlsx, xls format</div>
+                        </div>
+                        <input type="file" id="prodFile" class="file-input" accept=".xlsx,.xls" onchange="handleProdFile(event)">
+                        <div class="preview-box hidden" id="prodPreview"></div>
+                        <button class="btn btn-success" onclick="uploadProdData()" style="margin-top: 10px;">📤 Upload</button>
+                    </div>
+
+                    <!-- SALES UPLOAD -->
+                    <div>
+                        <h3 style="margin-bottom: 15px; color: var(--text-dark);">💰 Sales Upload</h3>
+                        <div class="upload-area" onclick="document.getElementById('salesFile').click()" ondragover="handleDragOver(event)" ondrop="handleSalesDrop(event)">
+                            <div class="upload-icon">📊</div>
+                            <div class="upload-text">Click or drag Excel file</div>
+                            <div class="upload-subtext">xlsx, xls format</div>
+                        </div>
+                        <input type="file" id="salesFile" class="file-input" accept=".xlsx,.xls" onchange="handleSalesFile(event)">
+                        <div class="preview-box hidden" id="salesPreview"></div>
+                        <button class="btn btn-success" onclick="uploadSalesData()" style="margin-top: 10px;">📤 Upload</button>
+                    </div>
+                </div>
+
+                <div style="background: var(--bg-light); padding: 20px; border-radius: 8px; margin-top: 30px; border-left: 4px solid var(--accent);">
+                    <h4 style="margin-bottom: 10px; color: var(--text-dark);">📋 Excel File Format</h4>
+                    <p style="color: var(--text-light); margin-bottom: 10px;">Your Excel file should have:</p>
+                    <ul style="color: var(--text-light); margin-left: 20px;">
+                        <li><strong>Sheet name:</strong> "Milk Intake" or "Production" or "Sales"</li>
+                        <li><strong>Column A:</strong> Date (YYYY-MM-DD or standard date format)</li>
+                        <li><strong>Column B:</strong> Value (numbers)</li>
+                        <li><strong>Row 1:</strong> Headers (Date, Total in Ltrs, etc.)</li>
+                        <li><strong>Row 2+:</strong> Your data</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- MANUAL ADD TAB -->
+        <div id="manual" class="tab-content">
+            <div class="form-section">
+                <div class="form-title">➕ Add Individual Records</div>
 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px;">
                     <!-- INTAKE FORM -->
@@ -517,42 +670,296 @@
 
         <div class="empty-state" id="emptyState">
             <div style="font-size: 3em; margin-bottom: 20px;">📊</div>
-            <p>Dashboard loaded. Use the forms above to add data.</p>
+            <p>Dashboard ready. Upload Excel files or add data manually.</p>
         </div>
     </div>
 
     <script>
-        // Get API URL from localStorage or prompt
-        let API_URL = localStorage.getItem('apiUrl') || '';
+        // Your deployment URL - pre-configured!
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwLn69SHF4CPtO9kmANHxGp6TVvgqNOUUUcWGuNCJ9L-TbpZT0p6aPsivTkZkpdb1Zn/exec';
         
         let intakeData = [];
         let prodData = [];
         let salesData = [];
         let charts = {};
 
+        let intakeFileData = null;
+        let prodFileData = null;
+        let salesFileData = null;
+
         document.addEventListener('DOMContentLoaded', function() {
-            if (!API_URL) {
-                configureAPI();
-            } else {
-                loadData();
-            }
+            loadData();
         });
 
-        function configureAPI() {
-            const url = prompt('https://script.google.com/macros/s/AKfycbwqgGKt0zrVUm7QbtGZAqW5OCpNmPucljFns-6NH9-3JZ7CRONtrbwBBz5o-7zri8Kx/exec');
-            if (url) {
-                API_URL = url;
-                localStorage.setItem('apiUrl', url);
-                loadData();
+        // File handling
+        function handleDragOver(event) {
+            event.preventDefault();
+            event.currentTarget.classList.add('dragover');
+        }
+
+        function handleIntakeDrop(event) {
+            event.preventDefault();
+            event.currentTarget.classList.remove('dragover');
+            const file = event.dataTransfer.files[0];
+            if (file) handleIntakeFile({target: {files: [file]}});
+        }
+
+        function handleProdDrop(event) {
+            event.preventDefault();
+            event.currentTarget.classList.remove('dragover');
+            const file = event.dataTransfer.files[0];
+            if (file) handleProdFile({target: {files: [file]}});
+        }
+
+        function handleSalesDrop(event) {
+            event.preventDefault();
+            event.currentTarget.classList.remove('dragover');
+            const file = event.dataTransfer.files[0];
+            if (file) handleSalesFile({target: {files: [file]}});
+        }
+
+        function handleIntakeFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    const sheet = workbook.Sheets['Milk Intake'];
+                    
+                    if (!sheet) {
+                        showError('Sheet "Milk Intake" not found in Excel file');
+                        return;
+                    }
+                    
+                    const rows = XLSX.utils.sheet_to_json(sheet);
+                    intakeFileData = rows.slice(0, 1000);
+                    
+                    showPreview('intakePreview', intakeFileData);
+                    showInfo(`✓ Loaded ${intakeFileData.length} intake records from Excel`);
+                } catch (error) {
+                    showError('Error reading file: ' + error.message);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function handleProdFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    const sheet = workbook.Sheets['Production'];
+                    
+                    if (!sheet) {
+                        showError('Sheet "Production" not found in Excel file');
+                        return;
+                    }
+                    
+                    const rows = XLSX.utils.sheet_to_json(sheet);
+                    prodFileData = rows.slice(0, 1000);
+                    
+                    showPreview('prodPreview', prodFileData);
+                    showInfo(`✓ Loaded ${prodFileData.length} production records from Excel`);
+                } catch (error) {
+                    showError('Error reading file: ' + error.message);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function handleSalesFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    const sheet = workbook.Sheets['Sales'];
+                    
+                    if (!sheet) {
+                        showError('Sheet "Sales" not found in Excel file');
+                        return;
+                    }
+                    
+                    const rows = XLSX.utils.sheet_to_json(sheet);
+                    salesFileData = rows.slice(0, 1000);
+                    
+                    showPreview('salesPreview', salesFileData);
+                    showInfo(`✓ Loaded ${salesFileData.length} sales records from Excel`);
+                } catch (error) {
+                    showError('Error reading file: ' + error.message);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function showPreview(elementId, data) {
+            if (data.length === 0) return;
+            
+            const preview = document.getElementById(elementId);
+            preview.classList.remove('hidden');
+            
+            let html = '<table class="preview-table"><thead><tr>';
+            Object.keys(data[0]).forEach(key => {
+                html += `<th>${key}</th>`;
+            });
+            html += '</tr></thead><tbody>';
+            
+            data.slice(0, 5).forEach(row => {
+                html += '<tr>';
+                Object.values(row).forEach(val => {
+                    html += `<td>${val}</td>`;
+                });
+                html += '</tr>';
+            });
+            
+            if (data.length > 5) {
+                html += `<tr><td colspan="2" style="text-align: center; color: var(--text-light);">... and ${data.length - 5} more rows</td></tr>`;
+            }
+            
+            html += '</tbody></table>';
+            preview.innerHTML = html;
+        }
+
+        async function uploadIntakeData() {
+            if (!intakeFileData || intakeFileData.length === 0) {
+                showError('No data to upload');
+                return;
+            }
+
+            try {
+                showInfo('Uploading ' + intakeFileData.length + ' records...');
+                let count = 0;
+                
+                for (const row of intakeFileData) {
+                    const dateKey = Object.keys(row)[0];
+                    const valueKey = Object.keys(row)[1];
+                    const date = row[dateKey];
+                    const intake = row[valueKey];
+                    
+                    if (date && intake) {
+                        const dateStr = typeof date === 'number' ? 
+                            new Date((date - 25569) * 86400 * 1000).toISOString().split('T')[0] :
+                            String(date).split('T')[0];
+                        
+                        try {
+                            await fetch(API_URL + '?action=addIntake', {
+                                method: 'POST',
+                                body: JSON.stringify({date: dateStr, intake: parseFloat(intake)})
+                            });
+                            count++;
+                        } catch (e) {
+                            console.log('Skipped row:', dateStr);
+                        }
+                    }
+                }
+                
+                showSuccess(`✅ Uploaded ${count} intake records!`);
+                intakeFileData = null;
+                document.getElementById('intakeFile').value = '';
+                document.getElementById('intakePreview').classList.add('hidden');
+                setTimeout(loadData, 1000);
+            } catch (error) {
+                showError('Upload failed: ' + error.message);
+            }
+        }
+
+        async function uploadProdData() {
+            if (!prodFileData || prodFileData.length === 0) {
+                showError('No data to upload');
+                return;
+            }
+
+            try {
+                showInfo('Uploading ' + prodFileData.length + ' records...');
+                let count = 0;
+                
+                for (const row of prodFileData) {
+                    const dateKey = Object.keys(row)[0];
+                    const valueKey = Object.keys(row)[1];
+                    const date = row[dateKey];
+                    const production = row[valueKey];
+                    
+                    if (date && production) {
+                        const dateStr = typeof date === 'number' ? 
+                            new Date((date - 25569) * 86400 * 1000).toISOString().split('T')[0] :
+                            String(date).split('T')[0];
+                        
+                        try {
+                            await fetch(API_URL + '?action=addProduction', {
+                                method: 'POST',
+                                body: JSON.stringify({date: dateStr, production: parseFloat(production)})
+                            });
+                            count++;
+                        } catch (e) {
+                            console.log('Skipped row:', dateStr);
+                        }
+                    }
+                }
+                
+                showSuccess(`✅ Uploaded ${count} production records!`);
+                prodFileData = null;
+                document.getElementById('prodFile').value = '';
+                document.getElementById('prodPreview').classList.add('hidden');
+                setTimeout(loadData, 1000);
+            } catch (error) {
+                showError('Upload failed: ' + error.message);
+            }
+        }
+
+        async function uploadSalesData() {
+            if (!salesFileData || salesFileData.length === 0) {
+                showError('No data to upload');
+                return;
+            }
+
+            try {
+                showInfo('Uploading ' + salesFileData.length + ' records...');
+                let count = 0;
+                
+                for (const row of salesFileData) {
+                    const dateKey = Object.keys(row)[0];
+                    const valueKey = Object.keys(row)[1];
+                    const date = row[dateKey];
+                    const sales = row[valueKey];
+                    
+                    if (date && sales) {
+                        const dateStr = typeof date === 'number' ? 
+                            new Date((date - 25569) * 86400 * 1000).toISOString().split('T')[0] :
+                            String(date).split('T')[0];
+                        
+                        try {
+                            await fetch(API_URL + '?action=addSales', {
+                                method: 'POST',
+                                body: JSON.stringify({date: dateStr, sales: parseFloat(sales)})
+                            });
+                            count++;
+                        } catch (e) {
+                            console.log('Skipped row:', dateStr);
+                        }
+                    }
+                }
+                
+                showSuccess(`✅ Uploaded ${count} sales records!`);
+                salesFileData = null;
+                document.getElementById('salesFile').value = '';
+                document.getElementById('salesPreview').classList.add('hidden');
+                setTimeout(loadData, 1000);
+            } catch (error) {
+                showError('Upload failed: ' + error.message);
             }
         }
 
         async function loadData() {
-            if (!API_URL) {
-                showError('API URL not configured');
-                return;
-            }
-
             try {
                 setStatus('loading', '🔄 Loading...');
                 
@@ -568,7 +975,7 @@
                     setStatus('success', '✅ Connected');
                     document.getElementById('emptyState').style.display = 'none';
                     
-                    showSuccess(`✅ Loaded: ${intakeData.length} intake, ${prodData.length} production, ${salesData.length} sales records`);
+                    showSuccess(`✅ Loaded: ${intakeData.length} intake, ${prodData.length} production, ${salesData.length} sales`);
                 } else {
                     showError('API Error: ' + result.error);
                     setStatus('error', '❌ Error');
@@ -670,13 +1077,10 @@
         function updateIntakeTab() {
             const total = intakeData.reduce((sum, d) => sum + d.intake, 0);
             const avg = intakeData.length > 0 ? total / intakeData.length : 0;
-            const max = Math.max(...intakeData.map(d => d.intake), 0);
-            const min = intakeData.length > 0 ? Math.min(...intakeData.map(d => d.intake)) : 0;
 
             document.getElementById('intakeMetrics').innerHTML = `
                 <div class="metric-card"><div class="metric-label">Total</div><div class="metric-value">${total.toLocaleString('en-US', {maximumFractionDigits: 0})}</div></div>
                 <div class="metric-card"><div class="metric-label">Average</div><div class="metric-value">${avg.toLocaleString('en-US', {maximumFractionDigits: 0})}</div></div>
-                <div class="metric-card"><div class="metric-label">Max</div><div class="metric-value">${max.toLocaleString('en-US', {maximumFractionDigits: 0})}</div></div>
                 <div class="metric-card"><div class="metric-label">Records</div><div class="metric-value">${intakeData.length}</div></div>
             `;
 
@@ -789,7 +1193,6 @@
                 <div class="metric-card" style="border-left-color: #10b981;"><div class="metric-label">Total Sales</div><div class="metric-value">${totalSales.toLocaleString('en-US', {maximumFractionDigits: 0})}</div></div>
             `;
 
-            // Merge data by date
             const dateMap = {};
             intakeData.forEach(d => { dateMap[d.date] = {...(dateMap[d.date] || {}), intake: d.intake}; });
             prodData.forEach(d => { dateMap[d.date] = {...(dateMap[d.date] || {}), production: d.production}; });
@@ -838,6 +1241,13 @@
             div.textContent = msg;
             div.classList.add('show');
             setTimeout(() => div.classList.remove('show'), 5000);
+        }
+
+        function showInfo(msg) {
+            const div = document.getElementById('infoMessage');
+            div.textContent = msg;
+            div.classList.add('show');
+            setTimeout(() => div.classList.remove('show'), 4000);
         }
     </script>
 </body>
